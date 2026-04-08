@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Мои билеты</h2>
+<ul>
+    {% for ticket in tickets %}
+        <li>
+            {{ ticket.party.title }} - {{ ticket.party.date.strftime('%d.%m.%Y %H:%M') }}
+            (цена: {{ ticket.price }} руб.)
+            {% if ticket.party.date > now %}
+                <form method="POST" action="{{ url_for('cancel_ticket', ticket_id=ticket.id) }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Вернуть билет?')">Вернуть</button>
+                </form>
+            {% else %}
+                <span class="past-event">(Прошедшее событие)</span>
+            {% endif %}
+        </li>
+    {% else %}
+        <p>У вас нет билетов.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

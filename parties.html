@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Вечеринки</h1>
+<form method="GET" class="filters">
+    <select name="city">
+        <option value="">Все города</option>
+        {% for city in cities %}
+            <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+    </select>
+    <select name="genre">
+        <option value="">Все жанры</option>
+        {% for genre in genres %}
+            <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="age" placeholder="Ваш возраст" value="{{ selected_age or '' }}">
+    <button type="submit">Фильтровать</button>
+</form>
+<!-- остальное без изменений -->
+<div class="party-list">
+    {% for party in parties %}
+        <div class="party-card">
+            <img src="{{ party.photo_url or 'https://via.placeholder.com/150' }}">
+            <h3>{{ party.title }}</h3>
+            <p>Город: {{ party.city }}</p>
+            <p>Жанр: {{ party.genre }}</p>
+            <p>Дата: {{ party.date.strftime('%d.%m.%Y %H:%M') }}</p>
+            <p>Возраст: {{ party.min_age }}+</p>
+            <p>Цена: {{ party.ticket_price }} руб.</p>
+            <a href="{{ url_for('party_detail', party_id=party.id) }}">Подробнее</a>
+        </div>
+    {% else %}
+        <p>Нет вечеринок по фильтру.</p>
+    {% endfor %}
+</div>
+{% if session.user_id and get_user(session.user_id).is_premium %}
+    <a href="{{ url_for('create_party') }}" class="btn">➕ Создать вечеринку (премиум)</a>
+{% endif %}
+{% endblock %}

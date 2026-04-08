@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="centered-form">
+    <div class="form-card">
+        <h2>✨ Шаг 2 из 2 ✨</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="dropzone" id="dropzone">
+                <p>📸 Перетащите фото сюда или нажмите для выбора (PNG, JPG)</p>
+                <input type="file" name="avatar" id="avatarInput" accept="image/png,image/jpeg" style="display:none;">
+                <img id="preview" class="preview-img" src="#" style="display:none;">
+            </div>
+            <textarea name="bio" placeholder="📝 О себе" rows="3"></textarea>
+            <input type="text" name="interests" placeholder="🎧 Интересы (через запятую)">
+            <button type="submit">🎉 Завершить</button>
+        </form>
+    </div>
+</div>
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('avatarInput');
+    const preview = document.getElementById('preview');
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('drag-over'); });
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            const reader = new FileReader();
+            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; };
+            reader.readAsDataURL(files[0]);
+        }
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+</script>
+{% endblock %}

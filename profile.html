@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile">
+    <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" width="150" style="border-radius: 50%;">
+    <h1>{{ user.username }}</h1>
+    <p>Город: {{ user.city }}, Возраст: {{ user.age }}</p>
+    <p>О себе: {{ user.bio or 'Не указано' }}</p>
+    <p>Интересы: {{ user.interests or 'Не указаны' }}</p>
+    {% if session.user_id == user.id %}
+        <a href="{{ url_for('edit_profile') }}" class="btn">Редактировать профиль</a>
+    {% endif %}
+    <h2>Мои билеты</h2>
+    <ul>
+        {% for ticket in tickets %}
+            <li>{{ ticket.party.title }} — {{ ticket.party.date.strftime('%d.%m.%Y') }}</li>
+        {% else %}
+            <li>Нет билетов</li>
+        {% endfor %}
+    </ul>
+    <h2>Мои вечеринки (как организатор)</h2>
+    <ul>
+        {% for party in created_parties %}
+            <li>{{ party.title }} ({{ party.status }})</li>
+        {% else %}
+            <li>Нет созданных вечеринок</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Чат по вечеринке "{{ party.title }}"</h2>
+<div class="chat-messages">
+    {% for msg in messages %}
+        <div class="msg {% if msg.from_user_id == user.id %}my-msg{% else %}other-msg{% endif %}">
+            <strong>{{ get_user(msg.from_user_id).username }}:</strong> {{ msg.message }}
+            <small>{{ msg.timestamp.strftime('%H:%M %d.%m') }}</small>
+        </div>
+    {% endfor %}
+</div>
+<form method="POST">
+    <textarea name="message" placeholder="Ваше сообщение..." required></textarea>
+    <button type="submit">Отправить</button>
+</form>
+<a href="{{ url_for('party_detail', party_id=party.id) }}">Назад к вечеринке</a>
+{% endblock %}

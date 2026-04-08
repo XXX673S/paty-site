@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Создать вечеринку</h2>
+<form method="POST">
+    <input type="text" name="title" placeholder="Название" required>
+    <textarea name="description" placeholder="Описание" required></textarea>
+    <input type="text" name="city" placeholder="Город" required>
+    <input type="text" name="location" placeholder="Точное место" required>
+    <input type="datetime-local" name="date" required>
+    <input type="number" name="min_age" placeholder="Возрастное ограничение (0 если нет)" value="0">
+    <input type="text" name="theme" placeholder="Тема вечеринки">
+    <select name="genre" required>
+        <option value="">Выберите жанр</option>
+        {% for g in genres %}
+            <option value="{{ g }}">{{ g }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="photo_url" placeholder="Ссылка на фото">
+    <input type="number" step="0.01" name="ticket_price" placeholder="Цена билета" required>
+    <input type="number" name="total_tickets" placeholder="Количество билетов" required>
+    <button type="submit">Отправить на модерацию</button>
+</form>
+{% endblock %}

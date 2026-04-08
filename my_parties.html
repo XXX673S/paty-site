@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Мои созданные вечеринки</h2>
+<ul>
+    {% for party in parties %}
+        <li>
+            {{ party.title }} ({{ party.city }}) - {{ party.date.strftime('%d.%m.%Y') }}
+            Статус: {{ party.status }}
+            <a href="{{ url_for('party_detail', party_id=party.id) }}">Просмотр</a>
+        </li>
+    {% else %}
+        <p>Вы ещё не создавали вечеринок.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

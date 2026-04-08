@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="centered-form">
+    <div class="form-card">
+        <h2>✨ Шаг 1 из 2 ✨</h2>
+        <form method="POST" id="step1Form">
+            <input type="text" name="username" placeholder="👤 Имя пользователя" required 
+                   pattern="[A-Za-zА-Яа-я0-9_]{3,20}" title="3-20 символов, буквы, цифры, _">
+            <input type="password" name="password" placeholder="🔒 Пароль" required minlength="4">
+            <input type="text" name="city" placeholder="🏙️ Город" required 
+                   pattern="[A-Za-zА-Яа-я\s\-]{2,50}" title="Только буквы, пробелы и дефисы">
+            <input type="number" name="age" placeholder="🎂 Возраст (от 18 лет)" required 
+                   min="18" max="120" step="1" 
+                   oninput="this.value = Math.abs(this.value); if(this.value < 18) this.value = 18; if(this.value > 120) this.value = 120;">
+            <button type="submit">Далее →</button>
+        </form>
+        <p style="text-align:center; margin-top:1rem;"><a href="/login">Уже есть аккаунт? Войти</a></p>
+    </div>
+</div>
+
+<script>
+    // Дополнительная проверка на клиенте, чтобы нельзя было ввести буквы в поле age
+    const ageInput = document.querySelector('input[name="age"]');
+    ageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'e' || e.key === 'E' || e.key === '-' || e.key === '+' || isNaN(Number(e.key)) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

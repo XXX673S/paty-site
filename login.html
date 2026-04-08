@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="centered-form">
+    <div class="form-card">
+        <h2>🔐 Вход в аккаунт</h2>
+        <p style="text-align: center; color: #a0a0a0; margin-bottom: 2rem; font-size: 0.9rem;">
+            Добро пожаловать обратно!
+        </p>
+        <form method="POST">
+            <input type="text" name="username" placeholder="👤 Имя пользователя" required>
+            <input type="password" name="password" placeholder="🔒 Пароль" required>
+            <button type="submit">
+                <span>Войти</span>
+                <span style="margin-left: 8px;">→</span>
+            </button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; color: #a0a0a0;">
+            Нет аккаунта? <a href="{{ url_for('register_step1') }}">Зарегистрироваться</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

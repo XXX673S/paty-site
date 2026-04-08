@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="party-detail">
+    <h1>{{ party.title }}</h1>
+    <img src="{{ party.photo_url or 'https://via.placeholder.com/400' }}" width="100%">
+    <p><strong>Город:</strong> {{ party.city }}</p>
+    <p><strong>Место:</strong> {{ party.location }}</p>
+    <p><strong>Дата и время:</strong> {{ party.date.strftime('%d.%m.%Y %H:%M') }}</p>
+    <p><strong>Возрастное ограничение:</strong> {{ party.min_age }}+</p>
+    <p><strong>Тема:</strong> {{ party.theme }}</p>
+    <p><strong>Цена билета:</strong> {{ party.ticket_price }} руб.</p>
+    <p><strong>Осталось билетов:</strong> {{ party.available_tickets }} / {{ party.total_tickets }}</p>
+    <p><strong>Описание:</strong> {{ party.description }}</p>
+
+    {% if user %}
+        {% if user.age >= party.min_age and party.available_tickets > 0 and party.status == 'approved' %}
+            <a href="{{ url_for('purchase', party_id=party.id) }}" class="btn">Купить билет</a>
+        {% elif user.age < party.min_age %}
+            <p class="error">Вы младше {{ party.min_age }} лет</p>
+        {% endif %}
+        {% if has_bought %}
+            <a href="{{ url_for('chat_organizer', party_id=party.id) }}" class="btn">💬 Чат с организатором</a>
+        {% endif %}
+    {% else %}
+        <p><a href="{{ url_for('login') }}">Войдите</a> чтобы купить билет.</p>
+    {% endif %}
+
+    <h2>Отзывы ({{ reviews|length }})</h2>
+    {% if user and has_bought %}
+        <form method="POST" action="{{ url_for('add_review', party_id=party.id) }}">
+            <select name="rating" required>
+                <option value="5">5 - Отлично</option>
+                <option value="4">4 - Хорошо</option>
+                <option value="3">3 - Средне</option>
+                <option value="2">2 - Плохо</option>
+                <option value="1">1 - Ужасно</option>
+            </select>
+            <textarea name="comment" placeholder="Ваш отзыв" required></textarea>
+            <button type="submit">Оставить отзыв</button>
+        </form>
+    {% endif %}
+    {% for review in reviews %}
+        <div class="review">
+            <strong>{{ get_user(review.user_id).username }}</strong> ({{ review.rating }}/5)
+            <p>{{ review.comment }}</p>
+            <small>{{ review.created_at.strftime('%d.%m.%Y') }}</small>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

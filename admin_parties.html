@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Модерация вечеринок</h2>
+{% for party in parties %}
+    <div class="moderate-card">
+        <h3>{{ party.title }}</h3>
+        <p>Организатор: {{ get_user(party.organizer_id).username }}</p>
+        <p>Город: {{ party.city }}, Дата: {{ party.date.strftime('%d.%m.%Y %H:%M') }}</p>
+        <a href="{{ url_for('approve_party', party_id=party.id) }}">✅ Одобрить</a>
+        <a href="{{ url_for('reject_party', party_id=party.id) }}">❌ Отклонить</a>
+    </div>
+{% else %}
+    <p>Нет вечеринок на модерацию.</p>
+{% endfor %}
+{% endblock %}

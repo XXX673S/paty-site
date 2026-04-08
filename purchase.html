@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Покупка билетов на "{{ party.title }}"</h2>
+<p>Цена: {{ party.ticket_price }} руб.</p>
+<p>Доступно: {{ party.available_tickets }}</p>
+<form method="POST">
+    <input type="number" name="quantity" min="1" max="{{ party.available_tickets }}" value="1" required>
+    <button type="submit">Оплатить</button>
+</form>
+{% endblock %}

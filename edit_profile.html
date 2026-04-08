@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="centered-form">
+    <div class="form-card">
+        <h2>Редактировать профиль</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="city" value="{{ user.city }}" required>
+            <input type="number" name="age" value="{{ user.age }}" required>
+            <div class="dropzone" id="dropzone">
+                <p>📸 Нажмите или перетащите новое фото</p>
+                <input type="file" name="avatar" id="avatarInput" accept="image/png,image/jpeg" style="display:none;">
+                <img id="preview" class="preview-img" src="{{ url_for('static', filename='uploads/' + user.avatar) }}" style="display:block;">
+            </div>
+            <textarea name="bio" rows="3">{{ user.bio }}</textarea>
+            <input type="text" name="interests" value="{{ user.interests }}">
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+<script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('avatarInput');
+    const preview = document.getElementById('preview');
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('drag-over'); });
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            const reader = new FileReader();
+            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; };
+            reader.readAsDataURL(files[0]);
+        }
+    });
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+</script>
+{% endblock %}
