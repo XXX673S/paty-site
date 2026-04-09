@@ -1,29 +1,120 @@
 {% extends "base.html" %}
+
+{% block title %}Профиль{% endblock %}
+
 {% block content %}
-<div class="profile">
-    <img src="{{ url_for('static', filename='uploads/' + user.avatar) }}" width="150" style="border-radius: 50%;">
-    <h1>{{ user.username }}</h1>
-    <p>Город: {{ user.city }}, Возраст: {{ user.age }}</p>
-    <p>О себе: {{ user.bio or 'Не указано' }}</p>
-    <p>Интересы: {{ user.interests or 'Не указаны' }}</p>
-    {% if session.user_id == user.id %}
-        <a href="{{ url_for('edit_profile') }}" class="btn">Редактировать профиль</a>
-    {% endif %}
-    <h2>Мои билеты</h2>
-    <ul>
-        {% for ticket in tickets %}
-            <li>{{ ticket.party.title }} — {{ ticket.party.date.strftime('%d.%m.%Y') }}</li>
-        {% else %}
-            <li>Нет билетов</li>
-        {% endfor %}
-    </ul>
-    <h2>Мои вечеринки (как организатор)</h2>
-    <ul>
-        {% for party in created_parties %}
-            <li>{{ party.title }} ({{ party.status }})</li>
-        {% else %}
-            <li>Нет созданных вечеринок</li>
-        {% endfor %}
-    </ul>
-</div>
+
+<section class="profile-page fade-in">
+    
+    <!-- ОБЛОЖКА -->
+    <div class="profile-cover">
+        <div class="profile-cover-overlay"></div>
+    </div>
+
+    <div class="container">
+
+        <!-- ВЕРХ -->
+        <div class="profile-top">
+
+            <!-- АВАТАР -->
+            <div class="profile-avatar-wrap">
+                <img src="{{ user.avatar or 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop' }}" class="profile-avatar" alt="{{ user.username }}">
+            </div>
+
+            <!-- ИНФА -->
+            <div class="profile-main-info">
+                <h1>{{ user.username }}</h1>
+                <p class="profile-city">📍 {{ user.city or "Город не указан" }}</p>
+
+                <div class="profile-stats">
+                    <div><strong>{{ parties_count or 0 }}</strong><span>Вечеринки</span></div>
+                    <div><strong>{{ tickets_count or 0 }}</strong><span>Билеты</span></div>
+                    <div><strong>4.8</strong><span>Рейтинг</span></div>
+                </div>
+
+                <div class="profile-buttons">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline">✏️ Редактировать</a>
+                    <a href="{{ url_for('create_party') }}" class="btn btn-primary">+ Создать событие</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- БИО -->
+        <div class="profile-box">
+            <h2>📝 О себе</h2>
+            <p>{{ user.bio or "Добавь описание профиля, чтобы люди знали кто ты 😎" }}</p>
+        </div>
+
+        <!-- МОИ ВЕЧЕРИНКИ -->
+        <div class="profile-box">
+            <h2>🎉 Мои вечеринки</h2>
+
+            <div class="events-grid">
+                {% if parties %}
+                    {% for party in parties %}
+                    <div class="event-card-pro">
+                        {% if party.image %}
+                        <div class="event-img" style="background-image: url('{{ party.image }}');"></div>
+                        {% else %}
+                        <div class="event-img" style="background-image: url('https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=600');"></div>
+                        {% endif %}
+                        <div class="event-content">
+                            <h3>{{ party.title }}</h3>
+                            <p class="event-meta">
+                                📅 {{ party.date }} • 🎵 {{ party.category or "Туса" }} • 🔞 18+
+                            </p>
+                            <div class="event-bottom">
+                                <span class="event-price">{{ party.price }}₽</span>
+                                <a href="{{ url_for('party_detail', party_id=party.id) }}" class="btn btn-primary small">Купить</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>🎭 Пока нет созданных событий</p>
+                        <a href="{{ url_for('create_party') }}" class="btn btn-primary">Создать первую вечеринку</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- МОИ БИЛЕТЫ -->
+        <div class="profile-box">
+            <h2>🎫 Мои билеты</h2>
+
+            <div class="tickets-list">
+                {% if tickets %}
+                    {% for ticket in tickets %}
+                    <div class="ticket-item">
+                        <div class="ticket-info">
+                            <h4>{{ ticket.party_title }}</h4>
+                            <p>📅 {{ ticket.date }} • 🎟 {{ ticket.quantity }} шт.</p>
+                        </div>
+                        <div class="ticket-status {{ ticket.status }}">
+                            {% if ticket.status == 'active' %}
+                                Активен
+                            {% elif ticket.status == 'used' %}
+                                Использован
+                            {% elif ticket.status == 'cancelled' %}
+                                Отменён
+                            {% else %}
+                                {{ ticket.status }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <p>🎟 У вас пока нет купленных билетов</p>
+                        <a href="{{ url_for('parties') }}" class="btn btn-outline">Найти вечеринку</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</section>
+
 {% endblock %}

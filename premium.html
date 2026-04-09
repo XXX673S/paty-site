@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Премиум | TUSA VIP{% endblock %}
+
+{% block content %}
+
+<section class="premium-section fade-in">
+    <div class="container">
+        
+        <div class="premium-header">
+            <h1 class="parallax" data-speed="1.5">💎 Премиум доступ</h1>
+            <p class="parallax" data-speed="1">Создавай свои вечеринки и зарабатывай</p>
+        </div>
+        
+        <div class="premium-grid">
+            <div class="premium-card-big parallax" data-speed="0.5">
+                <div class="premium-icon">👑</div>
+                <h3>VIP Организатор</h3>
+                
+                <ul class="premium-features">
+                    <li>✨ Создание неограниченного числа событий</li>
+                    <li>💰 Продажа билетов онлайн</li>
+                    <li>📊 Статистика и аналитика</li>
+                    <li>🎯 Доступ к аудитории тусовщиков</li>
+                    <li>📢 Продвижение в соцсетях</li>
+                    <li>⚡ Мгновенные выплаты</li>
+                </ul>
+                
+                <div class="premium-price">
+                    <span class="price-value">499₽</span>
+                    <span class="price-period">/ месяц</span>
+                </div>
+                
+                {% if session.user_id %}
+                <form action="{{ url_for('buy_premium') }}" method="POST">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        🚀 Активировать премиум
+                    </button>
+                </form>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-large">
+                    Войти и активировать
+                </a>
+                {% endif %}
+                
+                <p class="premium-note">Можно отменить в любое время</p>
+            </div>
+            
+            <div class="premium-benefits">
+                <div class="benefit-item parallax" data-speed="0.4">
+                    <span class="benefit-icon">🎉</span>
+                    <div>
+                        <h4>Организуй свою первую вечеринку</h4>
+                        <p>Всё просто: заполни информацию, загрузи фото и опубликуй</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item parallax" data-speed="0.4">
+                    <span class="benefit-icon">💳</span>
+                    <div>
+                        <h4>Принимай оплату онлайн</h4>
+                        <p>Билеты продаются автоматически, деньги приходят на карту</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item parallax" data-speed="0.4">
+                    <span class="benefit-icon">📈</span>
+                    <div>
+                        <h4>Расти аудиторию</h4>
+                        <p>Твои события видят тысячи тусовщиков по всей России</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<!-- СОЦИАЛЬНЫЙ БЛОК -->
+<section class="social-block fade-in">
+    <div class="container">
+        <h2>💬 Сообщество</h2>
+        
+        <div class="social-grid">
+            <a href="https://t.me/tusavip" target="_blank" class="social-card tg parallax" data-speed="0.3">
+                📱 Telegram
+            </a>
+            <a href="https://vk.com/tusavip" target="_blank" class="social-card vk parallax" data-speed="0.3">
+                💬 VK
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

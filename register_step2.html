@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="centered-form">
     <div class="form-card">
@@ -15,10 +16,12 @@
         </form>
     </div>
 </div>
+
 <script>
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('avatarInput');
     const preview = document.getElementById('preview');
+    
     dropzone.addEventListener('click', () => fileInput.click());
     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
     dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('drag-over'); });
@@ -29,14 +32,23 @@
         if (files.length > 0) {
             fileInput.files = files;
             const reader = new FileReader();
-            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; };
+            reader.onload = (e) => { 
+                preview.src = e.target.result; 
+                preview.style.display = 'block'; 
+                dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; 
+            };
             reader.readAsDataURL(files[0]);
         }
     });
+    
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
             const reader = new FileReader();
-            reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; };
+            reader.onload = (e) => { 
+                preview.src = e.target.result; 
+                preview.style.display = 'block'; 
+                dropzone.querySelector('p').innerHTML = 'Фото выбрано ✓'; 
+            };
             reader.readAsDataURL(e.target.files[0]);
         }
     });

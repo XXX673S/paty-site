@@ -26,6 +26,7 @@ with app.app_context():
         admin.set_password('admin')
         db.session.add(admin)
         db.session.commit()
+        print("✅ Админ создан (логин: admin, пароль: admin)")
 
     # Создание тестовых вечеринок, если их нет
     if Party.query.count() == 0:
@@ -97,7 +98,7 @@ with app.app_context():
         ]
         db.session.add_all(test_parties)
         db.session.commit()
-        print("Созданы тестовые вечеринки")
+        print("✅ Созданы тестовые вечеринки")
 
 # ---------- Декораторы ----------
 def login_required(f):
@@ -118,7 +119,7 @@ def premium_required(f):
         user = User.query.get(session['user_id'])
         if not user or not user.is_premium:
             flash('Только премиум-подписчики могут создавать вечеринки', 'danger')
-            return redirect(url_for('parties'))
+            return redirect(url_for('premium'))
         return f(*args, **kwargs)
     return decorated
 
@@ -141,7 +142,7 @@ def index():
     parties = Party.query.filter(Party.status == 'approved', Party.date >= datetime.now()).order_by(Party.date).all()
     return render_template('index.html', parties=parties)
 
-# ---------- Регистрация 2 шага с загрузкой аватара ----------
+# ---------- Регистрация ----------
 @app.route('/register/step1', methods=['GET', 'POST'])
 def register_step1():
     if request.method == 'POST':
@@ -215,7 +216,7 @@ def logout():
     flash('Вы вышли', 'info')
     return redirect(url_for('index'))
 
-# ---------- Профиль пользователя ----------
+# ---------- Профиль ----------
 @app.route('/profile/<int:user_id>')
 def profile(user_id):
     user = User.query.get_or_404(user_id)
@@ -246,7 +247,7 @@ def edit_profile():
         return redirect(url_for('profile', user_id=user.id))
     return render_template('edit_profile.html', user=user)
 
-# ---------- Список вечеринок с фильтрами ----------
+# ---------- Вечеринки ----------
 @app.route('/parties')
 def parties():
     city_filter = request.args.get('city', '')
@@ -280,7 +281,26 @@ def party_detail(party_id):
         has_bought = Ticket.query.filter_by(party_id=party_id, buyer_id=user.id).first() is not None
     return render_template('party_detail.html', party=party, reviews=reviews, user=user, has_bought=has_bought)
 
-# ---------- Создание вечеринки (премиум) ----------
+# ---------- Премиум ----------
+@app.route('/premium')
+def premium():
+    """Страница премиум подписки"""
+    return render_template('premium.html')
+
+@app.route('/buy_premium', methods=['POST'])
+@login_required
+def buy_premium():
+    """Активация премиум подписки"""
+    user = User.query.get(session['user_id'])
+    if user:
+        user.is_premium = True
+        db.session.commit()
+        flash('🎉 Премиум успешно активирован! Теперь вы можете создавать вечеринки.', 'success')
+    else:
+        flash('Пользователь не найден', 'error')
+    return redirect(url_for('profile', user_id=user.id))
+
+# ---------- Создание вечеринки ----------
 @app.route('/create_party', methods=['GET', 'POST'])
 @premium_required
 def create_party():
@@ -311,7 +331,7 @@ def create_party():
     genres_list = ['Хаус', 'Техно', 'Поп', 'Рок', 'Костюмированная', 'Корпоратив', 'Другое']
     return render_template('create_party.html', genres=genres_list)
 
-# ---------- Покупка билетов ----------
+# ---------- Билеты ----------
 @app.route('/purchase/<int:party_id>', methods=['GET', 'POST'])
 @login_required
 def purchase(party_id):
@@ -344,13 +364,6 @@ def my_tickets():
     tickets = Ticket.query.filter_by(buyer_id=session['user_id']).all()
     return render_template('my_tickets.html', tickets=tickets, now=datetime.now())
 
-@app.route('/my_parties')
-@login_required
-def my_parties():
-    user = User.query.get(session['user_id'])
-    parties = Party.query.filter_by(organizer_id=user.id).all()
-    return render_template('my_parties.html', parties=parties)
-
 @app.route('/cancel_ticket/<int:ticket_id>', methods=['POST'])
 @login_required
 def cancel_ticket(ticket_id):
@@ -365,9 +378,10 @@ def cancel_ticket(ticket_id):
     db.session.delete(ticket)
     party.available_tickets += 1
     db.session.commit()
-    flash('Билет возвращён. Деньги вернутся в течение 5 дней (демо).', 'info')
+    flash('Билет возвращён.', 'info')
     return redirect(url_for('my_tickets'))
 
+# ---------- Отзывы ----------
 @app.route('/review/<int:party_id>', methods=['POST'])
 @login_required
 def add_review(party_id):
@@ -381,31 +395,10 @@ def add_review(party_id):
     review = Review(party_id=party_id, user_id=session['user_id'], rating=rating, comment=comment)
     db.session.add(review)
     db.session.commit()
-    flash('Отзыв добавлен, спасибо!', 'success')
+    flash('Отзыв добавлен!', 'success')
     return redirect(url_for('party_detail', party_id=party_id))
 
-@app.route('/chat/<int:party_id>', methods=['GET', 'POST'])
-@login_required
-def chat_organizer(party_id):
-    party = Party.query.get_or_404(party_id)
-    user = User.query.get(session['user_id'])
-    if not (Ticket.query.filter_by(party_id=party_id, buyer_id=user.id).first() or party.organizer_id == user.id):
-        flash('Вы можете общаться только если купили билет или вы организатор', 'danger')
-        return redirect(url_for('party_detail', party_id=party_id))
-    if request.method == 'POST':
-        msg = request.form['message']
-        if msg.strip():
-            message = Message(party_id=party_id, from_user_id=user.id, to_user_id=party.organizer_id, message=msg)
-            db.session.add(message)
-            db.session.commit()
-            flash('Сообщение отправлено', 'success')
-        return redirect(url_for('chat_organizer', party_id=party_id))
-    messages = Message.query.filter(
-        ((Message.from_user_id == user.id) & (Message.to_user_id == party.organizer_id)) |
-        ((Message.from_user_id == party.organizer_id) & (Message.to_user_id == user.id))
-    ).order_by(Message.timestamp).all()
-    return render_template('chat_organizer.html', party=party, messages=messages, user=user)
-
+# ---------- Админка ----------
 @app.route('/admin/parties')
 @admin_required
 def admin_parties():

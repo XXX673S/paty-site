@@ -1,40 +1,209 @@
 {% extends "base.html" %}
+
+{% block title %}Вечеринки | TUSA VIP{% endblock %}
+
 {% block content %}
-<h1>Вечеринки</h1>
-<form method="GET" class="filters">
-    <select name="city">
-        <option value="">Все города</option>
-        {% for city in cities %}
-            <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
-        {% endfor %}
-    </select>
-    <select name="genre">
-        <option value="">Все жанры</option>
-        {% for genre in genres %}
-            <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
-        {% endfor %}
-    </select>
-    <input type="number" name="age" placeholder="Ваш возраст" value="{{ selected_age or '' }}">
-    <button type="submit">Фильтровать</button>
-</form>
-<!-- остальное без изменений -->
-<div class="party-list">
-    {% for party in parties %}
-        <div class="party-card">
-            <img src="{{ party.photo_url or 'https://via.placeholder.com/150' }}">
-            <h3>{{ party.title }}</h3>
-            <p>Город: {{ party.city }}</p>
-            <p>Жанр: {{ party.genre }}</p>
-            <p>Дата: {{ party.date.strftime('%d.%m.%Y %H:%M') }}</p>
-            <p>Возраст: {{ party.min_age }}+</p>
-            <p>Цена: {{ party.ticket_price }} руб.</p>
-            <a href="{{ url_for('party_detail', party_id=party.id) }}">Подробнее</a>
+
+<!-- ХЕДЕР СТРАНИЦЫ -->
+<section class="page-header fade-in">
+    <div class="container">
+        <h1 class="parallax" data-speed="1.5"> Все вечеринки</h1>
+        <p class="parallax" data-speed="1">Найди свою идеальную тусовку</p>
+    </div>
+</section>
+
+<!-- КАЛЕНДАРЬ (ИСПРАВЛЕННЫЙ) -->
+<section class="calendar-section fade-in fade-in-delay-1">
+    <div class="container">
+        <div class="calendar">
+            <div class="calendar-track">
+                <div class="day active">
+                    <span>Сегодня</span>
+                    <b>9</b>
+                </div>
+                <div class="day">
+                    <span>Пт</span>
+                    <b>10</b>
+                </div>
+                <div class="day">
+                    <span>Сб</span>
+                    <b>11</b>
+                </div>
+                <div class="day">
+                    <span>Вс</span>
+                    <b>12</b>
+                </div>
+                <div class="day">
+                    <span>Пн</span>
+                    <b>13</b>
+                </div>
+                <div class="day">
+                    <span>Вт</span>
+                    <b>14</b>
+                </div>
+                <div class="day">
+                    <span>Ср</span>
+                    <b>15</b>
+                </div>
+                <div class="day">
+                    <span>Чт</span>
+                    <b>16</b>
+                </div>
+                <div class="day">
+                    <span>Пт</span>
+                    <b>17</b>
+                </div>
+                <div class="day">
+                    <span>Сб</span>
+                    <b>18</b>
+                </div>
+            </div>
         </div>
+    </div>
+</section>
+
+<!-- ФИЛЬТРЫ -->
+<section class="filters-section fade-in fade-in-delay-1">
+    <div class="container">
+        <form method="GET" class="filters-form">
+            <div class="filters-grid">
+                <select name="city" class="filter-select">
+                    <option value="">📍 Все города</option>
+                    {% for city in cities %}
+                        <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="genre" class="filter-select">
+                    <option value="">🎵 Все жанры</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+                    {% endfor %}
+                </select>
+                
+                <input type="number" name="age" placeholder="🔞 Ваш возраст" value="{{ selected_age or '' }}" class="filter-input" min="16" max="100">
+                
+                <button type="submit" class="btn btn-primary">🔍 Найти</button>
+                <a href="{{ url_for('parties') }}" class="btn btn-outline">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- СПИСОК ВЕЧЕРИНОК (АФИША) -->
+<section class="events-section fade-in fade-in-delay-2">
+    <div class="container">
+        <h2>🔥 Актуальные вечеринки</h2>
+        
+        <div class="events-grid">
+            {% for party in parties %}
+            <div class="event-card-premium parallax" data-speed="0.4">
+                
+                <!-- КАРТИНКА -->
+                {% if party.photo_url %}
+                <div class="event-image" style="background-image: url('{{ party.photo_url }}');">
+                {% elif party.image %}
+                <div class="event-image" style="background-image: url('{{ party.image }}');">
+                {% else %}
+                <div class="event-image" style="background-image: url('https://images.pexels.com/photos/1492684/pexels-photo-1492684.jpeg?auto=compress&cs=tinysrgb&w=600');">
+                {% endif %}
+                    <div class="event-age">{{ party.min_age or '18+' }}</div>
+                    {% if party.is_hot %}
+                    <div class="event-badge-hot">🔥 HOT</div>
+                    {% endif %}
+                </div>
+
+                <!-- КОНТЕНТ -->
+                <div class="event-content">
+                    <h3>{{ party.title }}</h3>
+                    
+                    <div class="event-meta">
+                        <span>🎧 {{ party.genre or 'Вечеринка' }}</span>
+                        <span>📍 {{ party.city or 'Москва' }}</span>
+                    </div>
+                    
+                    {% if party.date %}
+                    <div class="event-date-info">
+                        <span>📅 {{ party.date.strftime('%d.%m.%Y') }}</span>
+                        <span>⏰ {{ party.date.strftime('%H:%M') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="event-bottom">
+                        <div class="price">
+                            {{ party.ticket_price or party.price or 'от 990' }}₽
+                        </div>
+                        
+                        <a href="{{ url_for('party_detail', party_id=party.id) }}" class="btn btn-primary small">
+                            Купить
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>🎭 Нет вечеринок по выбранным фильтрам</p>
+                <a href="{{ url_for('parties') }}" class="btn btn-primary">Сбросить фильтры</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- КОМЬЮНИТИ БЛОК (TELEGRAM + VK) -->
+<section class="community fade-in">
+    <div class="container">
+        <h2>💬 Комьюнити</h2>
+        
+        <div class="community-grid">
+            <a href="https://t.me/tusavip" target="_blank" class="community-card tg parallax" data-speed="0.3">
+                <div class="community-icon">📱</div>
+                <h3>Telegram</h3>
+                <p>Анонсы и закрытые вечеринки</p>
+                <span class="community-arrow">→</span>
+            </a>
+            
+            <a href="https://vk.com/tusavip" target="_blank" class="community-card vk parallax" data-speed="0.3">
+                <div class="community-icon">💬</div>
+                <h3>VK</h3>
+                <p>Общение и движ</p>
+                <span class="community-arrow">→</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- КНОПКА СОЗДАТЬ ВЕЧЕРИНКУ (для премиум) -->
+{% if session.user_id %}
+    {% set user = get_user(session.user_id) %}
+    {% if user and user.is_premium %}
+    <div class="create-party-fab">
+        <a href="{{ url_for('create_party') }}" class="btn btn-primary">
+            ➕ Создать вечеринку
+        </a>
+    </div>
     {% else %}
-        <p>Нет вечеринок по фильтру.</p>
-    {% endfor %}
-</div>
-{% if session.user_id and get_user(session.user_id).is_premium %}
-    <a href="{{ url_for('create_party') }}" class="btn">➕ Создать вечеринку (премиум)</a>
+    <section class="premium-cta fade-in">
+        <div class="container">
+            <div class="premium-card-small">
+                <h3>💎 Хочешь создавать свои вечеринки?</h3>
+                <p>Подключи премиум и получи доступ к созданию событий</p>
+                <a href="/premium" class="btn btn-primary">🔒 Создать вечеринку (только Premium)</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+{% else %}
+<section class="premium-cta fade-in">
+    <div class="container">
+        <div class="premium-card-small">
+            <h3>💎 Хочешь создавать свои вечеринки?</h3>
+            <p>Зарегистрируйся и подключи премиум доступ</p>
+            <a href="{{ url_for('register_step1') }}" class="btn btn-primary">Регистрация</a>
+        </div>
+    </div>
+</section>
 {% endif %}
+
 {% endblock %}

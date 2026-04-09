@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}TUSA VIP — Билеты на вечеринки | Премиум тусовки России{% endblock %}</title>
@@ -10,113 +11,166 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <nav>
-        <div class="logo">🎉 TUSA VIP</div>
-        <ul>
+
+<nav class="nav-modern">
+    <div class="container nav-inner">
+        <div class="logo-wrap">
+            <img src="https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop" alt="logo" class="logo-img">
+            <div class="logo">TUSA VIP</div>
+        </div>
+        <ul class="nav-list">
             <li><a href="{{ url_for('index') }}">Главная</a></li>
             <li><a href="{{ url_for('parties') }}">Вечеринки</a></li>
             <li><a href="https://t.me/tusavip" target="_blank">📱 Telegram</a></li>
-            <li><a href="https://vk.com/tusavip" target="_blank">📘 ВКонтакте</a></li>
+            <li><a href="https://vk.com/tusavip" target="_blank">💬 VK</a></li>
             {% if session.user_id %}
-                <li><a href="{{ url_for('profile', user_id=session.user_id) }}">Мой профиль</a></li>
+                <li><a href="{{ url_for('profile', user_id=session.user_id) }}">Профиль</a></li>
                 <li><a href="{{ url_for('my_tickets') }}">Билеты</a></li>
-                <li><a href="{{ url_for('my_parties') }}">Мои вечеринки</a></li>
                 <li><a href="{{ url_for('logout') }}">Выйти</a></li>
             {% else %}
                 <li><a href="{{ url_for('login') }}">Вход</a></li>
                 <li><a href="{{ url_for('register_step1') }}">Регистрация</a></li>
             {% endif %}
         </ul>
-    </nav>
-
-    <main>
-        <div class="container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endwith %}
-        </div>
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer>
-        <div class="container">
-            <div class="footer-links">
-                <a href="#" id="privacyLink">Политика конфиденциальности</a>
-                <a href="#" id="consentLink">Согласие на обработку ПД</a>
-                <a href="#" id="cookiesLink">Использование cookies</a>
-            </div>
-            <div class="copyright">© 2026 Tusa VIP. Все права защищены.</div>
-        </div>
-    </footer>
-
-    <!-- Модальные окна -->
-    <div id="privacyModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" data-modal="privacyModal">&times;</span>
-            <h3>Политика конфиденциальности</h3>
-            <p>Мы собираем только данные, необходимые для работы сервиса: имя, контактные данные (для покупки билетов). Никакая информация не передаётся третьим лицам без вашего согласия. Все данные хранятся на защищённых серверах.</p>
-        </div>
     </div>
-    <div id="consentModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" data-modal="consentModal">&times;</span>
-            <h3>Согласие на обработку персональных данных</h3>
-            <p>Нажимая «Принять» в cookie-баннере или используя сайт, вы даёте согласие на обработку ваших данных в целях обеспечения работы сервиса и улучшения пользовательского опыта.</p>
-        </div>
-    </div>
-    <div id="cookiesModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" data-modal="cookiesModal">&times;</span>
-            <h3>Использование cookies</h3>
-            <p>Мы используем файлы cookie для анализа трафика, персонализации контента и рекламы. Продолжая использовать сайт, вы соглашаетесь с нашей политикой использования cookie.</p>
-        </div>
-    </div>
+</nav>
 
-    <!-- Cookie баннер -->
-    <div id="cookieBanner" class="cookie-banner">
-        <p>🍪 Мы используем cookies для улучшения работы сайта. Продолжая, вы соглашаетесь с <a href="#" id="cookiePolicyLink" style="color:#c44569;">политикой обработки данных</a>.</p>
-        <button id="acceptCookies" class="cookie-btn">Принять</button>
+<main>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
     </div>
+    {% block content %}{% endblock %}
+</main>
 
-    <script>
-        // Модальные окна
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-        function closeModal(modalElement) {
-            modalElement.style.display = 'none';
-        }
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const modalId = btn.getAttribute('data-modal');
-                closeModal(document.getElementById(modalId));
-            });
+<footer>
+    <div class="container">
+        <div class="footer-links">
+            <a href="#" id="privacyLink">Политика конфиденциальности</a>
+            <a href="#" id="consentLink">Согласие на обработку ПД</a>
+            <a href="#" id="cookiesLink">Использование cookies</a>
+        </div>
+        <div class="copyright">© 2026 Tusa VIP. Все права защищены.</div>
+    </div>
+</footer>
+
+<!-- Модальные окна -->
+<div id="privacyModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" data-modal="privacyModal">&times;</span>
+        <h3>Политика конфиденциальности</h3>
+        <p>Мы собираем только данные, необходимые для работы сервиса: имя, контактные данные (для покупки билетов). Никакая информация не передаётся третьим лицам без вашего согласия. Все данные хранятся на защищённых серверах.</p>
+    </div>
+</div>
+
+<div id="consentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" data-modal="consentModal">&times;</span>
+        <h3>Согласие на обработку персональных данных</h3>
+        <p>Нажимая «Принять» в cookie-баннере или используя сайт, вы даёте согласие на обработку ваших данных в целях обеспечения работы сервиса и улучшения пользовательского опыта.</p>
+    </div>
+</div>
+
+<div id="cookiesModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" data-modal="cookiesModal">&times;</span>
+        <h3>Использование cookies</h3>
+        <p>Мы используем файлы cookie для анализа трафика, персонализации контента и рекламы. Продолжая использовать сайт, вы соглашаетесь с нашей политикой использования cookie.</p>
+    </div>
+</div>
+
+<!-- Cookie баннер -->
+<div id="cookieBanner" class="cookie-banner">
+    <p>🍪 Мы используем cookies для улучшения работы сайта. Продолжая, вы соглашаетесь с <a href="#" id="cookiePolicyLink" style="color:#ff4d8d;">политикой обработки данных</a>.</p>
+    <button id="acceptCookies" class="cookie-btn">Принять</button>
+</div>
+
+<script>
+    // Модальные окна
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(modalElement) {
+        modalElement.style.display = 'none';
+    }
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modalId = btn.getAttribute('data-modal');
+            closeModal(document.getElementById(modalId));
         });
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.style.display = 'none';
-            }
-        });
-        document.getElementById('privacyLink')?.addEventListener('click', (e) => { e.preventDefault(); openModal('privacyModal'); });
-        document.getElementById('consentLink')?.addEventListener('click', (e) => { e.preventDefault(); openModal('consentModal'); });
-        document.getElementById('cookiesLink')?.addEventListener('click', (e) => { e.preventDefault(); openModal('cookiesModal'); });
-        document.getElementById('cookiePolicyLink')?.addEventListener('click', (e) => { e.preventDefault(); openModal('privacyModal'); });
-
-        // Cookie баннер
-        const cookieBanner = document.getElementById('cookieBanner');
-        const acceptBtn = document.getElementById('acceptCookies');
-        if (!localStorage.getItem('cookiesAccepted')) {
-            cookieBanner.style.display = 'flex';
-        } else {
-            cookieBanner.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
         }
-        acceptBtn?.addEventListener('click', () => {
+    });
+    
+    const privacyLink = document.getElementById('privacyLink');
+    const consentLink = document.getElementById('consentLink');
+    const cookiesLink = document.getElementById('cookiesLink');
+    const cookiePolicyLink = document.getElementById('cookiePolicyLink');
+    
+    if (privacyLink) privacyLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        openModal('privacyModal'); 
+    });
+    if (consentLink) consentLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        openModal('consentModal'); 
+    });
+    if (cookiesLink) cookiesLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        openModal('cookiesModal'); 
+    });
+    if (cookiePolicyLink) cookiePolicyLink.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        openModal('privacyModal'); 
+    });
+
+    // Cookie баннер
+    const cookieBanner = document.getElementById('cookieBanner');
+    const acceptBtn = document.getElementById('acceptCookies');
+    if (!localStorage.getItem('cookiesAccepted')) {
+        if (cookieBanner) cookieBanner.style.display = 'flex';
+    } else {
+        if (cookieBanner) cookieBanner.style.display = 'none';
+    }
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => {
             localStorage.setItem('cookiesAccepted', 'true');
-            cookieBanner.style.display = 'none';
+            if (cookieBanner) cookieBanner.style.display = 'none';
         });
-    </script>
-    {% block scripts %}{% endblock %}
+    }
+
+    // Подсветка активной страницы
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-list a').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPath || (currentPath.includes(href) && href !== '/' && href !== '')) {
+            link.classList.add('active');
+        }
+    });
+</script>
+
+<!-- PARALLAX ЭФФЕКТ -->
+<script>
+document.addEventListener('mousemove', (e) => {
+    const elements = document.querySelectorAll('.parallax');
+    if (!elements.length) return;
+    
+    const x = (window.innerWidth / 2 - e.clientX) / 40;
+    const y = (window.innerHeight / 2 - e.clientY) / 40;
+    
+    elements.forEach(el => {
+        const speed = parseFloat(el.getAttribute('data-speed')) || 1;
+        el.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+    });
+});
+</script>
+
+{% block scripts %}{% endblock %}
 </body>
 </html>

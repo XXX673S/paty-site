@@ -1,23 +1,80 @@
 {% extends "base.html" %}
+
+{% block title %}Создать вечеринку | TUSA VIP{% endblock %}
+
 {% block content %}
-<h2>Создать вечеринку</h2>
-<form method="POST">
-    <input type="text" name="title" placeholder="Название" required>
-    <textarea name="description" placeholder="Описание" required></textarea>
-    <input type="text" name="city" placeholder="Город" required>
-    <input type="text" name="location" placeholder="Точное место" required>
-    <input type="datetime-local" name="date" required>
-    <input type="number" name="min_age" placeholder="Возрастное ограничение (0 если нет)" value="0">
-    <input type="text" name="theme" placeholder="Тема вечеринки">
-    <select name="genre" required>
-        <option value="">Выберите жанр</option>
-        {% for g in genres %}
-            <option value="{{ g }}">{{ g }}</option>
-        {% endfor %}
-    </select>
-    <input type="text" name="photo_url" placeholder="Ссылка на фото">
-    <input type="number" step="0.01" name="ticket_price" placeholder="Цена билета" required>
-    <input type="number" name="total_tickets" placeholder="Количество билетов" required>
-    <button type="submit">Отправить на модерацию</button>
-</form>
+
+<section class="centered-form fade-in">
+    <div class="form-card">
+        <h2>🎉 Создать вечеринку</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="title" placeholder="Название вечеринки" required>
+            
+            <textarea name="description" placeholder="Описание" rows="4" required></textarea>
+            
+            <select name="city" required>
+                <option value="">Выберите город</option>
+                <option value="Москва">Москва</option>
+                <option value="Санкт-Петербург">Санкт-Петербург</option>
+                <option value="Казань">Казань</option>
+                <option value="Екатеринбург">Екатеринбург</option>
+                <option value="Сочи">Сочи</option>
+            </select>
+            
+            <select name="genre" required>
+                <option value="">Выберите жанр</option>
+                <option value="Techno">Techno</option>
+                <option value="House">House</option>
+                <option value="Hip-Hop">Hip-Hop</option>
+                <option value="Pop">Pop</option>
+                <option value="Rock">Rock</option>
+            </select>
+            
+            <input type="datetime-local" name="date" required>
+            
+            <input type="number" name="price" placeholder="Цена билета (₽)" required>
+            
+            <input type="number" name="min_age" placeholder="Минимальный возраст" value="18" min="16" max="21">
+            
+            <div class="dropzone">
+                <p>📸 Перетащите фото или кликните для загрузки</p>
+                <input type="file" name="photo" accept="image/*" style="display: none;">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">🚀 Создать вечеринку</button>
+        </form>
+    </div>
+</section>
+
+<script>
+// Drag & drop для фото
+const dropzone = document.querySelector('.dropzone');
+const fileInput = dropzone.querySelector('input[type="file"]');
+
+dropzone.addEventListener('click', () => fileInput.click());
+
+dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.style.background = 'rgba(196, 69, 105, 0.2)';
+});
+
+dropzone.addEventListener('dragleave', () => {
+    dropzone.style.background = 'transparent';
+});
+
+dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.style.background = 'transparent';
+    fileInput.files = e.dataTransfer.files;
+    dropzone.querySelector('p').textContent = `📸 ${fileInput.files[0].name}`;
+});
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) {
+        dropzone.querySelector('p').textContent = `📸 ${fileInput.files[0].name}`;
+    }
+});
+</script>
+
 {% endblock %}
