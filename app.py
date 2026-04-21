@@ -1,9 +1,17 @@
 import os
+import requests  
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
 from models import db, User, Party, Ticket, Review, Message
 from datetime import datetime
 from functools import wraps
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey2025'
@@ -268,18 +276,11 @@ def parties():
     return render_template('parties.html', parties=parties, cities=cities, genres=genres,
                            selected_city=city_filter, selected_age=age_filter, selected_genre=genre_filter)
 
+# 🔥 ДЕТАЛИ ВЕЧЕРИНКИ
 @app.route('/party/<int:party_id>')
 def party_detail(party_id):
     party = Party.query.get_or_404(party_id)
-    if party.status != 'approved' and not (session.get('user_id') and (User.query.get(session['user_id']).is_admin or party.organizer_id == session['user_id'])):
-        flash('Вечеринка ещё не одобрена или отклонена', 'danger')
-        return redirect(url_for('parties'))
-    reviews = Review.query.filter_by(party_id=party_id).all()
-    user = User.query.get(session['user_id']) if 'user_id' in session else None
-    has_bought = False
-    if user:
-        has_bought = Ticket.query.filter_by(party_id=party_id, buyer_id=user.id).first() is not None
-    return render_template('party_detail.html', party=party, reviews=reviews, user=user, has_bought=has_bought)
+    return render_template('party_detail.html', party=party)
 
 # ---------- Премиум ----------
 @app.route('/premium')
@@ -305,64 +306,111 @@ def buy_premium():
 @premium_required
 def create_party():
     if request.method == 'POST':
-        title = request.form['title']
-        description = request.form['description']
-        city = request.form['city']
-        location = request.form['location']
-        date_str = request.form['date']
-        min_age = int(request.form['min_age'])
-        theme = request.form['theme']
-        genre = request.form['genre']
+        title = request.form.get('title')
+        description = request.form.get('description')
+        city = request.form.get('city')
+        location = request.form.get('location', '')
+        date_str = request.form.get('date')
+        min_age = int(request.form.get('min_age', 18))
+        theme = request.form.get('theme')
+        genre = request.form.get('genre')
         photo_url = request.form.get('photo_url', '')
-        ticket_price = float(request.form['ticket_price'])
-        total_tickets = int(request.form['total_tickets'])
-        date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+
+        # 🔥 ВАЖНО — исправлено имя
+        ticket_price = float(request.form.get('ticket_price', 0))
+        total_tickets = int(request.form.get('total_tickets', 0))
+
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            flash('❌ Неверный формат даты', 'danger')
+            return redirect(url_for('create_party'))
+
         party = Party(
-            title=title, description=description, city=city, location=location,
-            date=date, min_age=min_age, theme=theme, genre=genre, photo_url=photo_url,
-            ticket_price=ticket_price, total_tickets=total_tickets,
-            available_tickets=total_tickets, organizer_id=session['user_id'],
+            title=title,
+            description=description,
+            city=city,
+            location=location,
+            date=date,
+            min_age=min_age,
+            theme=theme,
+            genre=genre,
+            photo_url=photo_url,
+            ticket_price=ticket_price,
+            total_tickets=total_tickets,
+            available_tickets=total_tickets,
+            organizer_id=session['user_id'],
             status='pending'
         )
+
         db.session.add(party)
         db.session.commit()
+
+        # 🔥 ОТПРАВКА В TELEGRAM
+        send_to_telegram(
+            f"🆕 Новая вечеринка!\n\n"
+            f"🎉 {title}\n"
+            f"📍 {city}\n"
+            f"📅 {date.strftime('%d.%m.%Y %H:%M')}",
+            party.id
+        )
+
         flash('Вечеринка отправлена на модерацию', 'info')
         return redirect(url_for('parties'))
+
     genres_list = ['Хаус', 'Техно', 'Поп', 'Рок', 'Костюмированная', 'Корпоратив', 'Другое']
     return render_template('create_party.html', genres=genres_list)
 
-# ---------- Билеты ----------
+# 🔥 ПОКУПКА БИЛЕТА (ПОКА БЕЗ СОХРАНЕНИЯ)
 @app.route('/purchase/<int:party_id>', methods=['GET', 'POST'])
-@login_required
 def purchase(party_id):
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+
     party = Party.query.get_or_404(party_id)
-    user = User.query.get(session['user_id'])
-    if party.status != 'approved':
-        flash('Вечеринка недоступна для покупки', 'danger')
-        return redirect(url_for('parties'))
-    if user.age < party.min_age:
-        flash(f'Нужно {party.min_age}+ лет', 'danger')
-        return redirect(url_for('party_detail', party_id=party_id))
+
     if request.method == 'POST':
-        quantity = int(request.form['quantity'])
-        if quantity > party.available_tickets:
-            flash(f'Доступно только {party.available_tickets} билетов', 'danger')
-            return redirect(url_for('purchase', party_id=party_id))
-        total = quantity * party.ticket_price
-        for _ in range(quantity):
-            ticket = Ticket(party_id=party.id, buyer_id=user.id, price=party.ticket_price)
-            db.session.add(ticket)
-        party.available_tickets -= quantity
-        db.session.commit()
-        flash(f'Куплено {quantity} билет(ов) на {party.title} за {total} руб.', 'success')
+        flash('✅ Покупка прошла (пока без сохранения)')
         return redirect(url_for('my_tickets'))
+
     return render_template('purchase.html', party=party)
 
-@app.route('/my_tickets')
-@login_required
+@app.route('/telegram/webhook', methods=['POST'])
+def telegram_webhook():
+    data = request.json
+
+    if "callback_query" in data:
+        callback = data["callback_query"]
+        action = callback["data"]
+
+        if action.startswith("approve_"):
+            party_id = int(action.split("_")[1])
+            party = Party.query.get(party_id)
+            if party:
+                party.status = "approved"
+                db.session.commit()
+
+        elif action.startswith("reject_"):
+            party_id = int(action.split("_")[1])
+            party = Party.query.get(party_id)
+            if party:
+                party.status = "rejected"
+                db.session.commit()
+
+    return "ok"
+
+
+# 🔥 МОИ БИЛЕТЫ
+@app.route('/my-tickets')
 def my_tickets():
-    tickets = Ticket.query.filter_by(buyer_id=session['user_id']).all()
-    return render_template('my_tickets.html', tickets=tickets, now=datetime.now())
+    if not session.get('user_id'):
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')
+
+    tickets = Ticket.query.filter_by(user_id=user_id).all()
+
+    return render_template('my_tickets.html', tickets=tickets)
 
 @app.route('/cancel_ticket/<int:ticket_id>', methods=['POST'])
 @login_required
@@ -414,14 +462,41 @@ def approve_party(party_id):
     flash(f'Вечеринка "{party.title}" одобрена', 'success')
     return redirect(url_for('admin_parties'))
 
-@app.route('/admin/reject/<int:party_id>')
+def send_to_telegram(text, party_id):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    approve_url = f"http://127.0.0.1:5000/admin/approve/{party_id}"
+    reject_url = f"http://127.0.0.1:5000/admin/reject/{party_id}"
+
+    full_text = (
+        text +
+        "\n\n"
+        f"✅ Одобрить:\n{approve_url}\n\n"
+        f"❌ Отклонить:\n{reject_url}"
+    )
+
+    requests.post(url, data={
+        "chat_id": CHAT_ID,
+        "text": full_text
+    })
+
+@app.route('/admin/reject/<int:party_id>', methods=['GET', 'POST'])
 @admin_required
 def reject_party(party_id):
     party = Party.query.get_or_404(party_id)
-    party.status = 'rejected'
-    db.session.commit()
-    flash(f'Вечеринка "{party.title}" отклонена', 'warning')
-    return redirect(url_for('admin_parties'))
+
+    if request.method == 'POST':
+        reason = request.form.get('reason')
+
+        party.status = 'rejected'
+        party.rejection_reason = reason
+
+        db.session.commit()
+
+        flash('Вечеринка отклонена', 'warning')
+        return redirect(url_for('admin_parties'))
+
+    return render_template('reject_party.html', party=party)
 
 # ---------- Контекстный процессор ----------
 @app.context_processor

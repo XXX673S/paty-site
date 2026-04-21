@@ -1,18 +1,11 @@
-{% extends "base.html" %}
+<h2>Покупка билета</h2>
 
-{% block title %}Покупка{% endblock %}
+<p>Событие: {{ party.title }}</p>
+<p>📍 {{ party.city }}</p>
+<p>📅 {{ party.date.strftime('%d.%m.%Y %H:%M') }}</p>
+<p>💰 Цена: {{ party.price }}₽</p>
 
-{% block content %}
-
-<section class="container">
-    <div class="card">
-        <h2>Покупка билета</h2>
-
-        <p>Событие: Хаус вечеринка</p>
-        <p>Цена: 500₽</p>
-
-        <button>Оплатить</button>
-    </div>
-</section>
-
-{% endblock %}
+<form method="POST">
+    <input type="number" name="quantity" value="1" min="1">
+    <button type="submit">Оплатить</button>
+</form>

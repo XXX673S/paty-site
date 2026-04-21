@@ -1,29 +1,19 @@
-{% extends "base.html" %}
-
-{% block title %}Мои билеты{% endblock %}
-
-{% block content %}
-
 <section class="container">
     <h2>Мои билеты</h2>
 
-    <div class="cards">
-
-        <div class="card">
-            <h3>🔥 Хаус вечеринка</h3>
-            <p>📍 Москва</p>
-            <p>📅 15 апреля</p>
-            <button>Показать билет</button>
+    {% if tickets %}
+        <div class="cards">
+            {% for ticket in tickets %}
+                <div class="card">
+                    <h3>{{ ticket.party.title }}</h3>
+                    <p>📍 {{ ticket.party.city }}</p>
+                    <p>📅 {{ ticket.party.date.strftime('%d.%m.%Y') }}</p>
+                    <p>🎟 Кол-во: {{ ticket.quantity }}</p>
+                    <p>Статус: {{ ticket.status }}</p>
+                </div>
+            {% endfor %}
         </div>
-
-        <div class="card">
-            <h3>🎸 Квартирник</h3>
-            <p>📍 СПБ</p>
-            <p>📅 20 апреля</p>
-            <button>Показать билет</button>
-        </div>
-
-    </div>
+    {% else %}
+        <p>У вас пока нет билетов</p>
+    {% endif %}
 </section>
-
-{% endblock %}

@@ -8,7 +8,7 @@
     <div class="form-card">
         <h2>🎉 Создать вечеринку</h2>
         
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST">
             <input type="text" name="title" placeholder="Название вечеринки" required>
             
             <textarea name="description" placeholder="Описание" rows="4" required></textarea>
@@ -21,60 +21,37 @@
                 <option value="Екатеринбург">Екатеринбург</option>
                 <option value="Сочи">Сочи</option>
             </select>
-            
+
+            <!-- 🔥 ДОБАВИЛИ location -->
+            <input type="text" name="location" placeholder="Адрес (например: Тверская 12)" required>
+
             <select name="genre" required>
                 <option value="">Выберите жанр</option>
-                <option value="Techno">Techno</option>
-                <option value="House">House</option>
-                <option value="Hip-Hop">Hip-Hop</option>
-                <option value="Pop">Pop</option>
-                <option value="Rock">Rock</option>
+                <option value="Техно">Техно</option>
+                <option value="Хаус">Хаус</option>
+                <option value="Поп">Поп</option>
+                <option value="Рок">Рок</option>
             </select>
-            
+
+            <!-- 🔥 ДОБАВИЛИ theme -->
+            <input type="text" name="theme" placeholder="Тематика (необязательно)">
+
             <input type="datetime-local" name="date" required>
-            
-            <input type="number" name="price" placeholder="Цена билета (₽)" required>
-            
-            <input type="number" name="min_age" placeholder="Минимальный возраст" value="18" min="16" max="21">
-            
-            <div class="dropzone">
-                <p>📸 Перетащите фото или кликните для загрузки</p>
-                <input type="file" name="photo" accept="image/*" style="display: none;">
-            </div>
-            
+
+            <!-- 🔥 ИСПРАВИЛИ price -->
+            <input type="number" name="ticket_price" placeholder="Цена билета (₽)" required>
+
+            <!-- 🔥 ДОБАВИЛИ количество билетов -->
+            <input type="number" name="total_tickets" placeholder="Количество билетов" required>
+
+            <input type="number" name="min_age" placeholder="Минимальный возраст" value="18">
+
+            <!-- 🔥 ВРЕМЕННО ПРОСТО URL КАРТИНКИ -->
+            <input type="text" name="photo_url" placeholder="Ссылка на фото (можно вставить URL)">
+
             <button type="submit" class="btn btn-primary">🚀 Создать вечеринку</button>
         </form>
     </div>
 </section>
-
-<script>
-// Drag & drop для фото
-const dropzone = document.querySelector('.dropzone');
-const fileInput = dropzone.querySelector('input[type="file"]');
-
-dropzone.addEventListener('click', () => fileInput.click());
-
-dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.style.background = 'rgba(196, 69, 105, 0.2)';
-});
-
-dropzone.addEventListener('dragleave', () => {
-    dropzone.style.background = 'transparent';
-});
-
-dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.style.background = 'transparent';
-    fileInput.files = e.dataTransfer.files;
-    dropzone.querySelector('p').textContent = `📸 ${fileInput.files[0].name}`;
-});
-
-fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) {
-        dropzone.querySelector('p').textContent = `📸 ${fileInput.files[0].name}`;
-    }
-});
-</script>
 
 {% endblock %}

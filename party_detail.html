@@ -1,25 +1,15 @@
-{% extends "base.html" %}
+<h2>{{ party.title }}</h2>
 
-{% block title %}Событие{% endblock %}
+<p>📍 {{ party.city }}</p>
 
-{% block content %}
+<p>
+📅 {{ party.date.strftime('%d.%m.%Y') if party.date else 'Дата не указана' }}
+</p>
 
-<section class="container">
-    <div class="card">
-        <h2>🔥 Хаус вечеринка</h2>
+<p>💰 Цена: {{ party.price }}₽</p>
 
-        <p>📍 Москва</p>
-        <p>📅 15 апреля</p>
-        <p>💰 Цена: 500₽</p>
+<p>{{ party.description }}</p>
 
-        <p>
-            Жаркая тусовка с топовыми DJ, светом и атмосферой.
-        </p>
-
-        <a href="/purchase" class="btn btn-primary">
-            Купить билет
-        </a>
-    </div>
-</section>
-
-{% endblock %}
+<a href="{{ url_for('purchase', party_id=party.id) }}" class="btn btn-primary">
+    Купить билет
+</a>
